@@ -3,6 +3,8 @@ cmake_minimum_required( VERSION 3.3 )
 #declare project
 project( rlottie VERSION 0.2 LANGUAGES C CXX ASM)
 
+include(GNUInstallDirs)
+
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE MinSizeRel)
 endif()
@@ -130,10 +132,6 @@ if (LOTTIE_ASAN)
     target_link_options(rlottie PUBLIC  -fsanitize=address)
 endif()
 
-if (NOT LIB_INSTALL_DIR)
-    set (LIB_INSTALL_DIR "/usr/lib")
-endif (NOT LIB_INSTALL_DIR)
-
 #declare source and include files
 add_subdirectory(inc)
 add_subdirectory(src)
@@ -144,13 +142,8 @@ if (LOTTIE_TEST)
     add_subdirectory(test)
 endif()
 
-SET(PREFIX ${CMAKE_INSTALL_PREFIX})
-SET(EXEC_DIR ${PREFIX})
-SET(LIBDIR ${LIB_INSTALL_DIR})
-SET(INCDIR ${PREFIX}/include)
-
 CONFIGURE_FILE(${PROJECT_NAME}.pc.in ${PROJECT_NAME}.pc)
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
 
 #install header
@@ -158,13 +151,13 @@ install(FILES
         inc/rlottie.h
         inc/rlottie_capi.h
         inc/rlottiecommon.h
-        DESTINATION include)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 #install lib
 install( TARGETS rlottie EXPORT rlottie-targets
-         LIBRARY     DESTINATION    ${LIB_INSTALL_DIR}
-         ARCHIVE     DESTINATION    ${LIB_INSTALL_DIR}
-         INCLUDES    DESTINATION    include
+         LIBRARY     DESTINATION    ${CMAKE_INSTALL_LIBDIR}
+         ARCHIVE     DESTINATION    ${CMAKE_INSTALL_LIBDIR}
+         INCLUDES    DESTINATION    ${CMAKE_INSTALL_INCLUDEDIR}
        )
 
 #install config file.
@@ -172,7 +165,7 @@ install( TARGETS rlottie EXPORT rlottie-targets
 install( EXPORT rlottie-targets
          FILE          rlottieTargets.cmake
          NAMESPACE     rlottie::
-         DESTINATION   ${LIB_INSTALL_DIR}/cmake/rlottie
+         DESTINATION   ${CMAKE_INSTALL_LIBDIR}/cmake/rlottie
        )
 
 
@@ -186,14 +179,14 @@ write_basic_package_version_file(
 
 configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/rlottieConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/rlottieConfig.cmake
-    INSTALL_DESTINATION ${LIB_INSTALL_DIR}/cmake/rlottie
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rlottie
 )
 
 #Install the config, configversion and custom find modules
 install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/rlottieConfig.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/rlottieConfigVersion.cmake
-    DESTINATION ${LIB_INSTALL_DIR}/cmake/rlottie
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rlottie
 )
 
 
